@@ -2,15 +2,18 @@ import flet as ft
 
 
 class Counter(ft.Container):
-    def __init__(self, parent_update):
+    def __init__(self, parent_update, width):
         self.value = 0
-        self.text = ft.Text(str(self.value), size=30, weight=ft.FontWeight.W_600)
+        self.width_ = width
+        self.text = ft.Text(str(self.value), size=30, weight=ft.FontWeight.W_600, text_align="CENTER")
+
         self.parent_update = parent_update
 
         super().__init__()
         
 
     def init(self):
+        """
         row = ft.Row(
             controls=[
                 ft.FloatingActionButton(icon=ft.Icons.REMOVE, on_click=self.sub, mini=True),
@@ -20,15 +23,41 @@ class Counter(ft.Container):
             spacing=10,
             alignment = ft.MainAxisAlignment.SPACE_BETWEEN
         )
+        """
 
-        self.content = row
+        self.left_side = ft.Container(height=70, width=self.width_//2-3, on_click=self.sub, on_hover=self.hover_left, bgcolor=ft.Colors.BLACK, opacity=0.)
+        self.right_side = ft.Container(height=70, width=self.width_//2-3, on_click=self.add, on_hover=self.hover_right, bgcolor=ft.Colors.BLACK, opacity=0.)
 
+        self.row = ft.Row(
+            controls=[
+                self.left_side,
+                self.right_side
+            ],
+            spacing=0,
+            opacity=1.,
+            alignment = ft.MainAxisAlignment.SPACE_BETWEEN
+        )
+
+        #txt = ft.Container(content=self.text, height=70, width=self.width_, alignment=ft.Alignment.CENTER)
+        txt = ft.Row([
+            ft.Text(" -", size=25, weight=ft.FontWeight.W_300, text_align="CENTER"),
+            self.text,
+            ft.Text("+ ", size=25, weight=ft.FontWeight.W_300, text_align="CENTER")
+            ],
+            height=70,
+            width=self.width_,
+            alignment = ft.MainAxisAlignment.SPACE_BETWEEN)
+
+        self.content = ft.Stack(controls=[
+            txt
+            , self.row], width=self.width_, height=70)
+        #self.content = self.text
 
         self.border=ft.border.all(2, ft.Colors.GREY)
         self.border_radius=8
-        self.padding=10
         self.height=70
-        self.width=140
+        self.padding=0
+        self.width=self.width_
         #self.bgcolor=ft.Colors.GREY_200
 
         #self.alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -47,6 +76,26 @@ class Counter(ft.Container):
         self.update()
         self.parent_update()
 
+    async def hover_left(self, e):
+        if e.data: # Entering the area
+            self.left_side.bgcolor = ft.Colors.GREY
+            self.left_side.opacity = 0.5
+            self.update()
+        else:
+            self.left_side.bgcolor = ft.Colors.BLACK
+            self.left_side.opacity = 0.
+            self.update()
+
+    async def hover_right(self, e):
+        if e.data: # Entering the area
+            self.right_side.bgcolor = ft.Colors.GREY
+            self.right_side.opacity = 0.5
+            self.update()
+        else:
+            self.right_side.bgcolor = ft.Colors.BLACK
+            self.right_side.opacity = 0.
+            self.update()
+
 
 
 class Array(ft.Container):
@@ -57,10 +106,11 @@ class Array(ft.Container):
         super().__init__()
 
     def init(self):
-        self.left_counters = [Counter(self.update_total) for i in self.items]
-        self.right_counters = [Counter(self.update_total) for i in self.items]
+        col_width = 120
 
-        col_width = 140
+        self.left_counters = [Counter(self.update_total, col_width) for i in self.items]
+        self.right_counters = [Counter(self.update_total, col_width) for i in self.items]
+
 
         w = (self.width_ - col_width*2 - 60)//2
         print(w)
