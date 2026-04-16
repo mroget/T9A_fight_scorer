@@ -61,4 +61,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4.0.5
         with:
-          artifact_name: web-build-artifac
+          artifact_name: web-build-artifact
